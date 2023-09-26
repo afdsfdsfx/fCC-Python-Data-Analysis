@@ -1,120 +1,196 @@
+'''
+Project No.: 2
+Project Title: Demographic Data Analyzer	
+Date Completed: 2023-02-21
+
+
+
+Instructions: 
+	In this challenge, you must analyze demographic data using Pandas. You are given a dataset of demographic data that was extracted from the 1994 Census database. Here is a sample of what the data looks like:
+
+		|    |   age | workclass        |   fnlwgt | education   |   education-num | marital-status     | occupation        | relationship   | race   | sex    |   capital-gain |   capital-loss |   hours-per-week | native-country   | salary   |
+		|---:|------:|:-----------------|---------:|:------------|----------------:|:-------------------|:------------------|:---------------|:-------|:-------|---------------:|---------------:|-----------------:|:-----------------|:---------|
+		|  0 |    39 | State-gov        |    77516 | Bachelors   |              13 | Never-married      | Adm-clerical      | Not-in-family  | White  | Male   |           2174 |              0 |               40 | United-States    | <=50K    |
+		|  1 |    50 | Self-emp-not-inc |    83311 | Bachelors   |              13 | Married-civ-spouse | Exec-managerial   | Husband        | White  | Male   |              0 |              0 |               13 | United-States    | <=50K    |
+		|  2 |    38 | Private          |   215646 | HS-grad     |               9 | Divorced           | Handlers-cleaners | Not-in-family  | White  | Male   |              0 |              0 |               40 | United-States    | <=50K    |
+		|  3 |    53 | Private          |   234721 | 11th        |               7 | Married-civ-spouse | Handlers-cleaners | Husband        | Black  | Male   |              0 |              0 |               40 | United-States    | <=50K    |
+		|  4 |    28 | Private          |   338409 | Bachelors   |              13 | Married-civ-spouse | Prof-specialty    | Wife           | Black  | Female |              0 |              0 |               40 | Cuba             | <=50K    |
+
+        
+	You must use Pandas to answer the following questions:
+
+		- How many people of each race are represented in this dataset? This should be a Pandas series with race names as the index labels. (race column)
+		- What is the average age of men?
+		- What is the percentage of people who have a Bachelor's degree?
+		- What percentage of people with advanced education (Bachelors, Masters, or Doctorate) make more than 50K?
+		- What percentage of people without advanced education make more than 50K?
+		- What is the minimum number of hours a person works per week?
+		- What percentage of the people who work the minimum number of hours per week have a salary of more than 50K?
+		- What country has the highest percentage of people that earn >50K and what is that percentage?
+		- Identify the most popular occupation for those who earn >50K in India.
+	
+    Update the code so all variables set to "None" are set to the appropriate calculation or code. Round all decimals to the nearest tenth.
+'''
+
+
+# Importing necessary libraries
 import pandas as pd
 import numpy as np
 
 
+
+
+
+# Creating the required function
 def calculate_demographic_data(print_data = True):
+    
     # Read data from file
-    df = pd.read_csv('demographic_data.csv',
-                     header = 0
-                     )
+    df = pd.read_csv(
+        'demographic_data.csv',
+        header = 0
+	    )
+
 
     # 1. How many of each race are represented in this dataset? This should be a Pandas series with race names as the index labels.
+    race_count = None
+    
     race_count = df['race']
     race_count.index = df['race']
 
     race_count = df['race'].value_counts()
 
-    race_count = pd.Series(race_count)
+
 
 
     # 2. What is the average age of men?
-    male_only = df[df['sex'] == 'Male']
-    np_male_age = np.array(male_only['age'])
+    average_age_men = None
 
-    np_ave_male_age = np_male_age.mean()
+    df_male = df[df['sex'] == 'Male']
 
-    average_age_men = np.around(np_ave_male_age,
-                                decimals = 1)
+    average_age_men = np.round(
+        df_male['age'].mean(),
+        decimals = 1
+        )
+
     
+
 
     # 3. What is the percentage of people who have a Bachelor's degree?
-    total_population = np.array(df['education'].value_counts()).sum()
+    percentage_bachelors = None
     
-    bachelors_only = df[df['education'] == 'Bachelors']
-    bachelors_only = np.array(bachelors_only['education'].value_counts()).sum()
-    
-    percentage_bachelors = (bachelors_only / total_population) * 100
-    
-    percentage_bachelors = np.around(percentage_bachelors, 
-                                    decimals = 1)
+    total_population = df['education'].value_counts().sum()
+    bachelors_only = df[df['education'] == 'Bachelors'].value_counts().sum()
+
+    percentage_bachelors = np.round(
+        bachelors_only / total_population * 100,
+        decimals = 1
+        )
+
+
 
 
     # 4. What percentage of people with advanced education (`Bachelors`, `Masters`, or `Doctorate`) make more than 50K? 
-    adv_ed = df[(df['education'] == 'Bachelors') | (df['education'] == 'Masters') | (df['education'] == 'Doctorate')]
+    higher_education_rich = None
     
-    total_adv_ed = np.array(adv_ed['education'].value_counts()).sum()
+    adv_education = df[
+        (df['education'] == 'Bachelors') |
+        (df['education'] == 'Masters') | 
+        (df['education'] == 'Doctorate')
+        ]
     
-    adv_ed_high_salary = adv_ed[adv_ed['salary'] == '>50K']
-    total_adv_ed_high_salary = np.array(adv_ed_high_salary['salary'].value_counts()).sum()
-    percent_adv_ed_high_salary = (total_adv_ed_high_salary / total_adv_ed) * 100
-    
-    higher_education_rich = np.around(percent_adv_ed_high_salary, 
-                                      decimals = 1)
+    adv_education_total_population = adv_education['education'].value_counts().sum()
+    adv_education_population_50K = adv_education[adv_education['salary'] == '>50K'].value_counts().sum()
+
+    higher_education_rich = np.round(
+        adv_education_population_50K / adv_education_total_population * 100,
+        decimals = 1
+        )
+
+
 
 
     # 5. What percentage of people without advanced education make more than 50K?
+    lower_education_rich = None
     
-    not_adv_ed = df[~((df['education'] == 'Bachelors') | (df['education'] == 'Masters') | (df['education'] == 'Doctorate'))]
-    
-    wo_adv_ed_total = np.array(not_adv_ed['education'].value_counts()).sum()
-    
-    wo_adv_ed_high_salary = not_adv_ed[not_adv_ed['salary'] == '>50K']
-    wo_adv_ed_high_salary_total = np.array(wo_adv_ed_high_salary['education'].value_counts()).sum()
-    percent_wo_adv_ed_high_salary = (wo_adv_ed_high_salary_total/wo_adv_ed_total) * 100
-    
-    lower_education_rich = np.around(percent_wo_adv_ed_high_salary, decimals = 1)
+    wo_adv_education = df[~(
+        (df['education'] == 'Bachelors') | 
+        (df['education'] == 'Masters') | 
+        (df['education'] == 'Doctorate')
+        )]
+
+    wo_adv_education_total_population = wo_adv_education.value_counts().sum()
+    wo_adv_education_population_50K = wo_adv_education[wo_adv_education['salary'] == '>50K'].value_counts().sum()
+
+    lower_education_rich = np.round(
+        wo_adv_education_population_50K / wo_adv_education_total_population * 100,
+        decimals = 1
+        )
+
+
 
 
     # 6. What is the minimum number of hours a person works per week (hours-per-week feature)?
-    hrs_per_wk = df['hours-per-week']
+    min_work_hours = None
     
-    min_work_hours = np.array(hrs_per_wk).min()
+    min_work_hours = df['hours-per-week'].min()
+
+
 
 
     # 7. What percentage of the people who work the minimum number of hours per week have a salary of >50K?
-    min_hours_df = df[df['hours-per-week'] == min_work_hours]
+    rich_percentage = None
 
-    min_hours_high_salary = min_hours_df[min_hours_df['salary'] == '>50K']['salary'].value_counts()
-    np_rich = np.array(min_hours_high_salary)
-    np_rich_total = np.array(min_hours_df['salary'].value_counts()).sum()
+    df_min_hours = df[df['hours-per-week'] == min_work_hours]
 
-    rich_percentage = (np_rich/np_rich_total) * 100
-    rich_percentage = np.around(rich_percentage, 
-                                decimals = 1)
+    min_hours_total_population = df_min_hours.value_counts().sum()
+    min_hours_50K_population = df_min_hours[df_min_hours['salary'] == '>50K'].value_counts().sum()
+
+    rich_percentage = np.round(
+        min_hours_50K_population / min_hours_total_population * 100,
+        decimals = 1 
+        )
+
+
+
 
     # 8. What country has the highest percentage of people that earn >50K?
+    highest_earning_country = None
+    highest_earning_country_percentage = None
+
     rich_country = {}
 
-    country_list = df['native-country']
-
-    for i in country_list.value_counts().index:
+    for i in df['native-country'].value_counts().index:
         country = df[df['native-country'] == i]
 
-        high_salary = country[country['salary'] == '>50K'].value_counts()
-        np_high = np.array(high_salary).sum()
+        high_salary = country[country['salary'] == '>50K'].value_counts().sum()
+        all_salary = country['salary'].value_counts().sum()
 
-        all_salary = country['salary'].value_counts()
-        np_all = np.array(all_salary).sum()
-
-        percentage = (np_high/np_all) * 100
-        earn_percent = np.around(percentage, 
-                                decimals = 1)
+        earn_percent = np.round(
+            high_salary / all_salary * 100, 
+            decimals = 1
+            )
         
         rich_country.update({**rich_country, i:earn_percent})
-        
-    rich_country_series = pd.Series(rich_country)
 
-    highest_earning_country_percentage = rich_country_series.max()
-    highest_earning_country = rich_country_series[rich_country_series == rich_country_series.max()].index[0]
+    pd_rich_country = pd.Series(rich_country)
+
+    highest_earning_country_percentage = pd_rich_country.max()
+    highest_earning_country = pd_rich_country[pd_rich_country == pd_rich_country.max()].index[0]
+
+
 
 
     # 9. Identify the most popular occupation for those who earn >50K in India.
-    india = df[df['native-country'] == 'India']
-    indian_works_high_salary = india[india['salary'] == '>50K']
+    top_IN_occupation = None
     
-    popular_india = pd.Series(indian_works_high_salary['occupation'].value_counts())
-    
-    top_IN_occupation = popular_india.index[0]
+    IN_50K_occupation = df[
+        (df['salary'] == '>50K') & 
+        (df['native-country'] == 'India')
+        ]
+
+    top_IN_occupation = IN_50K_occupation['occupation'].value_counts().index[0]
+
+
 
 
     # DO NOT MODIFY BELOW THIS LINE
